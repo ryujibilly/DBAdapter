@@ -80,6 +80,9 @@
     <Compile Include="Server\TCPClient.cs" />
     <Compile Include="Server\TCPServer.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="SQLPool.cs" />
+    <Compile Include="SQLPoolManager.cs" />
+    <Compile Include="WITSData.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
