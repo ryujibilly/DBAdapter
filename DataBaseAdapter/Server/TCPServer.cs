@@ -24,6 +24,7 @@ namespace DataBaseAdapter.Server
         /// socket接收端口
         /// </summary>
         private int ServerPort = 9002;
+        private string ServerIP = "10.242.100.83";
         
         /// <summary>
         /// 服务器IP
@@ -77,8 +78,9 @@ namespace DataBaseAdapter.Server
         public TCPServer(string serverIP,int portNum)
         {
             this.ServerPort = portNum;
+            this.ServerIP = serverIP;
             ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), portNum);
+            //IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), portNum);
             RecvThread = new Thread(new ThreadStart(RecvThreadFunc));
             ProcThread = new Thread(new ThreadStart(ProcThreadFunc));
         }
@@ -92,8 +94,8 @@ namespace DataBaseAdapter.Server
             bool bRet = false;
             try
             {
-                IPEndPoint ipEnd = new IPEndPoint(IPAddress.Any, ServerPort);
-                ServerSocket.Bind(ipEnd);
+                IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, ServerPort);
+                ServerSocket.Bind(localEndPoint);
                 ServerSocket.Listen(10);
                 RecvThread.Start();
                 ProcThread.Start();
@@ -141,12 +143,34 @@ namespace DataBaseAdapter.Server
             catch { }
         }
 
-        internal void RecvThreadFunc()
+        /// <summary>
+        /// 接收数据线程主函数
+        /// </summary>
+        void RecvThreadFunc()
         {
+            Trace.WriteLine("TCPServer县城启动！");
+            byte[] receivedBuffer = new byte[65535];
+            while(IsContinue)
+                try
+                {
+                    CurrClientSocket = ServerSocket.Accept();
+                    Trace.WriteLine(string.Format("客户端{0}已经连接！", ((IPEndPoint)CurrClientSocket.RemoteEndPoint).Address.ToString()));
+                    CurrClientSocket.Send(ASCIIEncoding.ASCII.GetBytes("Server OK,YOU CAN SEND WITSData!"));
+                    while(IsContinue)
+                    {
 
+                    }
+                }
+                catch (Exception)
+                {
+                    
+                    throw;
+                }
         }
-
-        internal void ProcThreadFunc()
+        /// <summary>
+        /// 数据库线程主函数
+        /// </summary>
+        void ProcThreadFunc()
         {
 
         }
