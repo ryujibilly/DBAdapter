@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
+using System.Data.SqlClient;
 using System.Net.Sockets;
 using System.Threading;
 using System.Net;
@@ -15,6 +17,9 @@ namespace DataBaseAdapter.Server
     /// </summary>
     public class TCPServer
     {
+
+        ISQLPool isqlpool1 = SQLPool.sqlPool1;
+        ISQLPool isqlpool2 = SQLPool.sqlPool2;
         /// <summary>
         /// socket接收端口
         /// </summary>
@@ -34,7 +39,7 @@ namespace DataBaseAdapter.Server
         /// 接收线程
         /// </summary>
         private Thread RecvThread = null;
-
+        private Thread ProcThread = null;
         /// <summary>
         /// 当前客户端
         /// </summary>
@@ -44,11 +49,6 @@ namespace DataBaseAdapter.Server
         /// 
         /// </summary>
         private object ClientSocketAsynObj = new object();
-
-        /// <summary>
-        /// 接收定时器
-        /// </summary>
-        private MMTimer RecvTimer = null;
 
         /// <summary>
         /// 接受字节数
@@ -74,12 +74,13 @@ namespace DataBaseAdapter.Server
         /// 构造函数 
         /// </summary>
         /// <param name="portNum">端口</param>
-        public TCPServer(int portNum)
+        public TCPServer(string serverIP,int portNum)
         {
             this.ServerPort = portNum;
             ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), portNum);
             RecvThread = new Thread(new ThreadStart(RecvThreadFunc));
-            RecvTimer = new MMTimer(this.SendTimerFunc);
+            ProcThread = new Thread(new ThreadStart(ProcThreadFunc));
         }
 
         /// <summary>
@@ -95,7 +96,7 @@ namespace DataBaseAdapter.Server
                 ServerSocket.Bind(ipEnd);
                 ServerSocket.Listen(10);
                 RecvThread.Start();
-                RecvTimer.Start(1000, true);
+                ProcThread.Start();
                 bRet = true;
             }
             catch (Exception ex)
@@ -132,9 +133,9 @@ namespace DataBaseAdapter.Server
             catch { }
             try
             {
-                if (RecvTimer != null)
+                if (ProcThread != null)
                 {
-                    RecvTimer.Stop();
+                    ProcThread.Abort();
                 }
             }
             catch { }
@@ -145,7 +146,7 @@ namespace DataBaseAdapter.Server
 
         }
 
-        internal void SendTimerFunc(uint uTimerID,uint uMsg,UIntPtr dwUser,UIntPtr dw1,UIntPtr dw2)
+        internal void ProcThreadFunc()
         {
 
         }

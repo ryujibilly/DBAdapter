@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -15,6 +16,58 @@ namespace DataBaseAdapter
 {
     public partial class Form1 : Form
     {
+        public Random random = new Random();
+        public TCPServer tcpserver;
+        private int progressValue;
+        /// <summary>
+        /// 本机IPv4/v6
+        /// </summary>
+        string[] HostAddresses { get; set; }
+        public WITSData result = new WITSData();
+        public int errorTimes = 0;
+        public string errorLog = Application.StartupPath + "\\errorLog.wits";
+        public string OriginLog = Application.StartupPath + "\\OriginLog.wits";
+        public int DLen;
+        public int receiveDataLength;
+        public int DgramNum = 0;
+        public int ProcDgramNum = 0;
+        //是否写文件
+        public bool isWriteFile;
+        public bool socketOn = true;
+        public bool o = false, k = false;
+        /// <summary>
+        /// 数据库服务器IP地址
+        /// </summary>
+        private string ipAddress { get; set; }
+        /// <summary>
+        /// 数据库服务器端口号
+        /// </summary>
+        private string PortNumber { get; set; }
+        /// <summary>
+        /// 数据库用户
+        /// </summary>
+        private string User { get; set; }
+        /// <summary>
+        /// 数据库密码
+        /// </summary>
+        private string Password { get; set; }
+
+        /// <summary>
+        /// 数据库名字
+        /// </summary>
+        private string DBase { get; set; }
+
+        public string[] separator = new string[] { "&&", "\r", "\n" };
+        public string[] endTag = new string[] { "!!" };
+        private string[] witsPackets;
+        private string[] PacketData;
+        private string conString = null;
+        private WITSData witsData;
+        private FileStream fsLogWits;
+        private StreamWriter swLogWits;
+        private FileStream fsErrorWits;
+        private StreamWriter swErrorWits;
+        private byte[] receiveBuffer = new byte[65535];
         public Form1()
         {
             InitializeComponent();
@@ -23,7 +76,21 @@ namespace DataBaseAdapter
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            string[] HostAddresses = GetLocalAddresses();
+            vComboBox1.Items.Clear();
+            if(HostAddresses.Length>0)
+            {
+                for (int i = 0; i < HostAddresses.Length; i++)
+                    vComboBox1.Items.Add(HostAddresses[i]);
+            }
+            vComboBox1.Text = vComboBox1.Items[0].Text;
+            vTextBox1.Text = "9001";
+            vTextBox2.Text = errorTimes.ToString();
+            this.StopButton.Enabled = false;
+            this.User = "sa";
+            this.Password = "123456";
+            timer1.Enabled = false;
+            
         }
 
         /// <summary>
@@ -146,13 +213,39 @@ namespace DataBaseAdapter
         }
 
         /// <summary>
-        /// 开启TCPServer 侦听9002端口
+        /// 开启TCPServer 侦听9001端口
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void vButton1_Click(object sender, EventArgs e)
+        private void Start_Click(object sender, EventArgs e)
         {
-            TCPServer tpcserver = new TCPServer(int.Parse(vTextBox1.Text));
+            timer1.Interval = 2000;
+            timer1.Start();
+            if(IsInteger(vTextBox1.Text.Trim()))
+            {
+                TCPServer tcpserver = new TCPServer(vComboBox1.Text.Trim(),int.Parse(vTextBox1.Text));
+                tcpserver.Start();
+                this.StartButton.Enabled = false;
+                this.StopButton.Enabled = true;
+                this.vComboBox1.Enabled = false;
+                this.vTextBox1.Enabled = false;
+                this.vTextBox2.Enabled = false;
+            }
+        }
+
+        private void Stop_Click(object sender, EventArgs e)
+        {
+            tcpserver.Stop();
+            this.StartButton.Enabled = true;
+            this.StopButton.Enabled = false;
+            this.vComboBox1.Enabled = true;
+            this.vTextBox1.Enabled = true;
+            this.vTextBox2.Enabled = true;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            vCircularProgressBar1.Value = random.Next(100);
         }
     }
 }
