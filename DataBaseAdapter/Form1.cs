@@ -23,18 +23,7 @@ namespace DataBaseAdapter
         /// 本机IPv4/v6
         /// </summary>
         string[] HostAddresses { get; set; }
-        public WITSData result = new WITSData();
-        public int errorTimes = 0;
-        public string errorLog = Application.StartupPath + "\\errorLog.wits";
-        public string OriginLog = Application.StartupPath + "\\OriginLog.wits";
-        public int DLen;
-        public int receiveDataLength;
-        public int DgramNum = 0;
-        public int ProcDgramNum = 0;
-        //是否写文件
-        public bool isWriteFile;
-        public bool socketOn = true;
-        public bool o = false, k = false;
+        private int errorTimes = 0;
         /// <summary>
         /// 数据库服务器IP地址
         /// </summary>
@@ -57,17 +46,9 @@ namespace DataBaseAdapter
         /// </summary>
         private string DBase { get; set; }
 
-        public string[] separator = new string[] { "&&", "\r", "\n" };
-        public string[] endTag = new string[] { "!!" };
-        private string[] witsPackets;
-        private string[] PacketData;
-        private string conString = null;
-        private WITSData witsData;
-        private FileStream fsLogWits;
-        private StreamWriter swLogWits;
-        private FileStream fsErrorWits;
-        private StreamWriter swErrorWits;
-        private byte[] receiveBuffer = new byte[65535];
+
+        public string errorLog = Application.StartupPath + "\\errorLog.wits";
+        public string OriginLog = Application.StartupPath + "\\OriginLog.wits";
         public Form1()
         {
             InitializeComponent();
@@ -246,6 +227,10 @@ namespace DataBaseAdapter
         private void timer1_Tick(object sender, EventArgs e)
         {
             vCircularProgressBar1.Value = random.Next(100);
+        }
+
+        void RecvFunc()
+        {
         }
     }
 }

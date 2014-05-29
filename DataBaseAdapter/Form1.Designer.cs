@@ -156,7 +156,7 @@
             this.vTextBox1.SelectionStart = 0;
             this.vTextBox1.Size = new System.Drawing.Size(66, 31);
             this.vTextBox1.TabIndex = 5;
-            this.vTextBox1.Text = "9001";
+            this.vTextBox1.Text = " 9001";
             this.vTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.vTextBox1.VIBlendTheme = VIBlend.Utilities.VIBLEND_THEME.VISTABLUE;
             // 
@@ -348,6 +348,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "Form1";
             this.Opacity = 0.9D;
+            this.helpProvider1.SetShowHelp(this, true);
             this.Text = "DataBaseAdapter-CPL-LWD";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusStrip1.ResumeLayout(false);
